@@ -30,7 +30,7 @@ namespace Segmeton.UnityDebugger
         #endregion
 
         #region Init
-        public void Init()
+        private void Init()
         {
             Application.logMessageReceivedThreaded += CaptureLogThread;
 
@@ -153,7 +153,7 @@ namespace Segmeton.UnityDebugger
                     logText = string.Format("<color=green>Log</color> {0}\n", text);
                     break;
                 case LogType.Warning:
-                    logText = string.Format("<color=yellow>Warning</color> {0}\n");
+                    logText = string.Format("<color=yellow>Warning</color> {0}\n", text);
                     break;
 
             }
@@ -172,7 +172,7 @@ namespace Segmeton.UnityDebugger
             textArea.text += string.Format("{0}{1}{2}{3}{4}{5}\n", deviceModelText, deviceTypeText, deviceNameText, systemMemorySizeText, operatingSystemText, currentSceneNameText);
         }
 
-        public void ShowLogs()
+        public void ToggleLogsVisibility()
         {
             if (panelLog != null)
             {
