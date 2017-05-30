@@ -40,9 +40,12 @@ namespace Segmeton.UnityDebugger
             systemMemorySize = SystemInfo.systemMemorySize.ToString();
             operatingSystem = SystemInfo.operatingSystem;
 
-            Color temp = panelLog.GetComponent<Image>().color;
-            scrollViewLog.GetComponent<Image>().color = temp;
-            sliderLog.value = temp.a;
+            Color tempPanelLogColor = panelLog.GetComponent<Image>().color;
+            Color tempScrollViewLogColor = scrollViewLog.GetComponent<Image>().color;
+
+            scrollViewLog.GetComponent<Image>().color = new Color(tempScrollViewLogColor.r, tempScrollViewLogColor.g, tempScrollViewLogColor.b, tempPanelLogColor.a);
+
+            sliderLog.value = tempPanelLogColor.a;
 
             isLogShown = panelLog.activeInHierarchy;
 
@@ -191,10 +194,12 @@ namespace Segmeton.UnityDebugger
 
         public void SetAlphaTransparency()
         {
-            Color temp = panelLog.GetComponent<Image>().color;
-            temp.a = sliderLog.value;
-            panelLog.GetComponent<Image>().color = temp;
-            scrollViewLog.GetComponent<Image>().color = temp;
+            Color tempPanelLogColor = panelLog.GetComponent<Image>().color;
+            Color tempScrollViewLogColor = scrollViewLog.GetComponent<Image>().color;
+            tempPanelLogColor.a = sliderLog.value;
+            tempScrollViewLogColor.a = sliderLog.value;
+            panelLog.GetComponent<Image>().color = tempPanelLogColor;
+            scrollViewLog.GetComponent<Image>().color = tempScrollViewLogColor;
         }
 
         public void ClearLog()
