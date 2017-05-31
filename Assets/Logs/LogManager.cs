@@ -10,28 +10,48 @@ namespace Segmeton.UnityDebugger
     public class LogManager : MonoBehaviour
     {
         #region Variables
+        private static LogManager instance;
+
         private bool isInitialized = false;
         private bool isLogShown = false;
         private bool isClearOnNewScene = false;
+
         private List<LogData> threadedLogs = new List<LogData>();
         private List<LogData> logs = new List<LogData>();
+
         private string deviceModel;
         private string deviceType;
         private string deviceName;
         private string systemMemorySize;
         private string operatingSystem;
+
         private Dictionary<string, string> cachedString = new Dictionary<string, string>();
+
         private string currentSceneName;
+
+        private float fps;
+        private int frames = 0;
+        private bool firstTime = true;
+        private float lastUpdate = 0f;
+        private const int requiredFrames = 10;
+        private const float updateInterval = 0.25f;
 
         public GameObject panelLog;
         public GameObject scrollViewLog;
         public Slider sliderLog;
         public Text textArea;
+        public Text FpsCounter;
         #endregion
 
         #region Init
         private void Init()
         {
+            if (isInitialized)
+            {
+                Destroy(this.gameObject);
+                return;
+            }
+
             Application.logMessageReceivedThreaded += CaptureLogThread;
 
             deviceModel = SystemInfo.deviceModel;
@@ -51,6 +71,8 @@ namespace Segmeton.UnityDebugger
 
             SceneManager.sceneLoaded += LoadedSceneDelegate;
 
+            instance = this;
+
             isInitialized = true;
         }
         #endregion
@@ -68,6 +90,8 @@ namespace Segmeton.UnityDebugger
 
         private void Update()
         {
+            FpsCounter.text = fps.ToString("0.000");
+
             if (threadedLogs.Count > 0)
             {
                 lock (threadedLogs)
@@ -80,6 +104,8 @@ namespace Segmeton.UnityDebugger
                     threadedLogs.Clear();
                 }
             }
+
+            fps = UpdateFpsCounter();
         }
 
         private void OnLevelWasLoaded(int level)
@@ -132,7 +158,7 @@ namespace Segmeton.UnityDebugger
 
             logs.Add(log);
 
-            UpdatelogsUI(log.Condition, log.StackTrace, log.LogType);
+            //UpdatelogsUI(log.Condition, log.StackTrace, log.LogType);
 
         }
         #endregion
@@ -220,34 +246,62 @@ namespace Segmeton.UnityDebugger
         }
         #endregion
 
+        #region FPS Counter
+        private float UpdateFpsCounter()
+        {
+            float fps = 0.00f;
+
+            if (firstTime)
+            {
+                Debug.Log("first time");
+                firstTime = false;
+                lastUpdate = Time.realtimeSinceStartup;
+                frames = 0;
+                return fps;
+            }
+
+            Debug.Log("add frames calculate fps " + frames);
+            frames++;
+            float dt = Time.realtimeSinceStartup - lastUpdate;
+            if (dt > updateInterval && frames > requiredFrames)
+            {
+                fps = (float)frames / dt;
+                lastUpdate = Time.realtimeSinceStartup;
+                frames = 0;
+            }
+            Debug.Log(fps);
+            return fps;
+        }
+        #endregion
+
         #region Setter Getter
+        public static LogManager Instance
+        {
+            get { return instance; }
+        }
+
         public string DeviceModel
         {
-            //set { deviceModel = value; }
             get { return deviceModel; }
         }
 
         public string DeviceType
         {
-            //set { deviceType = value; }
             get { return deviceType; }
         }
 
         public string DeviceName
         {
-            //set { deviceName = value; }
             get { return deviceName; }
         }
 
         public string SystemMemorySize
         {
-            //set { systemMemorySize = value; }
             get { return systemMemorySize; }
         }
 
         public string OperatingSystem
         {
-            //set { operatingSystem = value; }
             get { return operatingSystem; }
         }
 
@@ -265,7 +319,6 @@ namespace Segmeton.UnityDebugger
 
         public string CurrentSceneName
         {
-            //set { currentSceneName = value; }
             get { return currentSceneName; }
         } 
         #endregion
